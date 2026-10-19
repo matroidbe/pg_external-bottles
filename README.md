@@ -19,6 +19,7 @@ here.
 | `pg_cron` 1.6 | [citusdata/pg_cron](https://github.com/citusdata/pg_cron) | tag `v1.6.8` | Citus Data | [PostgreSQL License](licenses/pg_cron/LICENSE) |
 | `age` 1.8.0 | [apache/age](https://github.com/apache/age) | tag `PG18/v1.8.0-rc0` | The Apache Software Foundation | [Apache-2.0](licenses/age/LICENSE), [NOTICE](licenses/age/NOTICE) |
 | `postgis` 3.6.4 | [postgis.net](https://postgis.net) ([postgis/postgis](https://github.com/postgis/postgis)) | release tarball `postgis-3.6.4.tar.gz` (sha256 pinned) | The PostGIS Project Steering Committee and contributors | [GPL-2.0-or-later](licenses/postgis/COPYING), [component licenses](licenses/postgis/LICENSE) |
+| `plpython3u` 1.0 | [PostgreSQL](https://www.postgresql.org) (`src/pl/plpython`) | release tarball `postgresql-18.6.tar.bz2` (sha256 pinned), built as a PGXS module (`overlays/plpython3u/`) | The PostgreSQL Global Development Group | [PostgreSQL License](licenses/plpython3u/LICENSE) |
 | `timescaledb` 2.30.2 | [timescale/timescaledb](https://github.com/timescale/timescaledb) | tag `2.30.2` | Timescale, Inc. | [Apache-2.0](licenses/timescaledb/LICENSE-APACHE) and the [Timescale License](licenses/timescaledb/LICENSE-TIMESCALE), [NOTICE](licenses/timescaledb/NOTICE) |
 
 Every release attaches these license and NOTICE files beside the bottles, as
@@ -42,8 +43,8 @@ TSL part; everything else is Apache-2.0.
 ## Install
 
 ```bash
-REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.3.0
-for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2 postgis-3.6.4; do
+REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.4.0
+for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2 postgis-3.6.4 plpython3u-1.0; do
   pgx install --configure --bottle "$REL/$b-pg18-darwin-arm64.tar.gz"
 done
 ```
@@ -54,6 +55,19 @@ database with `--set cron.database_name=<db>`. AGE's preloaded hooks run in ever
 database: create the extension in each one, `template1` included.
 
 ## Platform notes
+
+**Since v0.4.0 these bottles link the pinned kegs of the `matroidbe/eidos`
+Homebrew tap** (`eidos-postgresql@18`, `eidos-gettext@1.0`, `eidos-geos@3.15`,
+`eidos-proj@9.9`, `eidos-json-c@0.19`, `eidos-protobuf-c@1.5`,
+`eidos-python@3.11`), never homebrew/core's, so a `brew upgrade` cannot break
+them. Build and install them against `eidos-postgresql@18`; `eidos setup`
+installs the tap and these bottles together. v0.3.0 and earlier link
+homebrew/core.
+
+**plpython3u** is PostgreSQL's own PL/Python, built from the 18.6 source tree
+against the installed server headers with a PGXS Makefile (the in-tree one
+needs the whole tree configured). It embeds `eidos-python@3.11`, which carries
+numpy for it.
 
 darwin-arm64 bottles are built against Homebrew's `postgresql@18` with
 `MACOSX_DEPLOYMENT_TARGET=14.0`, and also load into a PostgreSQL 18 built from
@@ -67,7 +81,7 @@ upstream tag (pgsql-http v1.7.2 installs extension `http` 1.7).
 
 ## Build
 
-Needs pgx >= v0.3.0 (`--build-var`, the CMake and autotools builders, recorded
+Needs pgx >= v0.4.0 (`--build-var`, the CMake and autotools builders, recorded
 library requirements), plus `brew install bison cmake openssl` for AGE and
 TimescaleDB and `brew install geos proj gdal json-c protobuf-c` for PostGIS.
 
