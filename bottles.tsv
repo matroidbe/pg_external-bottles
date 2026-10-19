@@ -1,0 +1,4 @@
+# name	upstream	tag	extra make environment
+vector	https://github.com/pgvector/pgvector	v0.8.7
+http	https://github.com/pramsey/pgsql-http	v1.7.2
+pg_cron	https://github.com/citusdata/pg_cron	v1.6.8	PG_LDFLAGS=-L/opt/homebrew/opt/gettext/lib -lintl
