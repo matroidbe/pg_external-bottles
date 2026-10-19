@@ -1,0 +1,12 @@
+# Copied into pg_cron's source as pgbrew.toml before bottling, so the bottle
+# carries it and `pgx install --configure` sets the server up.
+[postgresql]
+# CREATE EXTENSION itself fails unless pg_cron is preloaded: its launcher is a
+# background worker registered at server start.
+shared_preload_libraries = true
+background_workers = 1
+
+[postgresql.settings]
+# The one database the launcher runs jobs from (it must hold the extension).
+# Override with: pgx install --configure --set cron.database_name=<db> ...
+"cron.database_name" = "postgres"

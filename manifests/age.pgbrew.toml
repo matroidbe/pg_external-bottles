@@ -1,0 +1,7 @@
+# Copied into Apache AGE's source as pgbrew.toml before bottling.
+[postgresql]
+# `LOAD 'age'` is superuser-only, so a non-superuser application role can only
+# use AGE when the library is preloaded. Once preloaded, its hooks run in every
+# database: create the extension in each one (template1 too), or queries fail
+# with schema "ag_catalog" does not exist.
+shared_preload_libraries = true

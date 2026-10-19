@@ -5,44 +5,67 @@ PostgreSQL extensions, for platforms where no package exists. matroidbe's own
 extensions are bottled in
 [pg_extensions-releases](https://github.com/matroidbe/pg_extensions-releases).
 
-These are unmodified upstream sources at a pinned tag (`bottles.tsv`), built
-with `pgx bottle`. Each extension keeps its upstream license (`licenses/`).
+**These are not our extensions.** Each bottle is an unmodified build of the
+upstream source at a pinned tag (`bottles.tsv`), redistributed under the
+upstream license. Report bugs in an extension upstream; report a broken bottle
+here.
+
+## Upstream projects and licenses
+
+| Bottle | Upstream project | Built from | Copyright | License |
+|---|---|---|---|---|
+| `vector` 0.8.7 | [pgvector/pgvector](https://github.com/pgvector/pgvector) | tag `v0.8.7` | PostgreSQL Global Development Group, The Regents of the University of California | [PostgreSQL License](licenses/vector/LICENSE) |
+| `http` 1.7 | [pramsey/pgsql-http](https://github.com/pramsey/pgsql-http) | tag `v1.7.2` | Paul Ramsey | [MIT](licenses/http/LICENSE) |
+| `pg_cron` 1.6 | [citusdata/pg_cron](https://github.com/citusdata/pg_cron) | tag `v1.6.8` | Citus Data | [PostgreSQL License](licenses/pg_cron/LICENSE) |
+| `age` 1.8.0 | [apache/age](https://github.com/apache/age) | tag `PG18/v1.8.0-rc0` | The Apache Software Foundation | [Apache-2.0](licenses/age/LICENSE), [NOTICE](licenses/age/NOTICE) |
+| `timescaledb` 2.30.2 | [timescale/timescaledb](https://github.com/timescale/timescaledb) | tag `2.30.2` | Timescale, Inc. | [Apache-2.0](licenses/timescaledb/LICENSE-APACHE) and the [Timescale License](licenses/timescaledb/LICENSE-TIMESCALE), [NOTICE](licenses/timescaledb/NOTICE) |
+
+Every release attaches these license and NOTICE files beside the bottles, as
+`<extension>-LICENSE…` / `<extension>-NOTICE`. See also [NOTICE](NOTICE).
+
+**TimescaleDB** is built in full, including the `tsl/` features (compression,
+continuous aggregates) that eidos's `timeseries` uses. Those are under the
+Timescale License, which permits redistributing the binaries "solely in
+unmodified standalone form" (§2.1(c)) and keeps its restrictions on use, for
+example offering TimescaleDB as a hosted database service (§2.2). Using this
+bottle means accepting that license. The `timescaledb-tsl-*` library is the
+TSL part; everything else is Apache-2.0.
 
 ## Install
 
 ```bash
-REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.1.0
-for b in vector-0.8.7 http-1.7 pg_cron-1.6; do
+REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.2.0
+for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2; do
   pgx install --configure --bottle "$REL/$b-pg18-darwin-arm64.tar.gz"
 done
 ```
 
-`pg_cron` must be preloaded and carries no pgbrew declaration, so add it to
-`shared_preload_libraries` and set `cron.database_name` yourself.
+`pg_cron`, `age` and `timescaledb` carry a pgbrew manifest (`manifests/`), so
+`--configure` preloads them and writes their settings. Point pg_cron at your
+database with `--set cron.database_name=<db>`. AGE's preloaded hooks run in every
+database: create the extension in each one, `template1` included.
 
-## What is published
-
-| Extension | Upstream | Tag | Targets |
-|---|---|---|---|
-| `vector` 0.8.7 | pgvector/pgvector | v0.8.7 | pg18-darwin-arm64 |
-| `http` 1.7 | pramsey/pgsql-http | v1.7.2 | pg18-darwin-arm64 |
-| `pg_cron` 1.6 | citusdata/pg_cron | v1.6.8 | pg18-darwin-arm64 |
-
-A bottle's version is the extension version from its control file, not the
-upstream release tag (pgsql-http v1.7.2 installs extension `http` 1.7).
+## Platform notes
 
 darwin-arm64 bottles are built against Homebrew's `postgresql@18` with
-`MACOSX_DEPLOYMENT_TARGET=14.0`. `vector` and `http` link only system libraries
+`MACOSX_DEPLOYMENT_TARGET=14.0`, and also load into a PostgreSQL 18 built from
+source. `vector`, `http`, `age` and `timescaledb` link only system libraries
 (`http` uses macOS's `/usr/lib/libcurl`). `pg_cron` also links Homebrew's
-`gettext` and PostgreSQL's `libpq`, both of which `brew install postgresql@18`
-provides.
+`gettext` and `postgresql@18`'s `libpq` by absolute path, so it needs
+`brew install postgresql@18` present even when another PostgreSQL runs it.
+
+A bottle's version is the extension version from its control file, not the
+upstream tag (pgsql-http v1.7.2 installs extension `http` 1.7).
 
 ## Build
 
+Needs pgx >= v0.2.0 (`--build-var`, the CMake builder), plus `brew install bison
+cmake openssl` for AGE and TimescaleDB.
+
 ```bash
 PG_CONFIG=/opt/homebrew/opt/postgresql@18/bin/pg_config scripts/build.sh dist
-gh release create vX.Y.Z dist/* licenses/*
 ```
 
-Bump the release when a pin changes. Never replace an asset of a published
-release.
+`bottles.tsv` pins each upstream tag and the build variables it needs;
+`manifests/<name>.pgbrew.toml` is copied into the source before bottling. Bump the
+release when a pin changes, and never replace an asset of a published release.

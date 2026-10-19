@@ -1,0 +1,7 @@
+# Copied into TimescaleDB's source as pgbrew.toml before bottling.
+[postgresql]
+# TimescaleDB refuses to load from a session: its planner hooks are installed
+# at server start.
+shared_preload_libraries = true
+# The launcher plus timescaledb.max_background_workers (default 16) job workers.
+background_workers = 17

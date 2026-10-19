@@ -1,4 +1,6 @@
-# name	upstream	tag	extra make environment
+# name	upstream	tag	build variables (--build-var KEY=VALUE, separated by ;)
 vector	https://github.com/pgvector/pgvector	v0.8.7
 http	https://github.com/pramsey/pgsql-http	v1.7.2
 pg_cron	https://github.com/citusdata/pg_cron	v1.6.8	PG_LDFLAGS=-L/opt/homebrew/opt/gettext/lib -lintl
+age	https://github.com/apache/age	PG18/v1.8.0-rc0	BISON=/opt/homebrew/opt/bison/bin/bison;BISONFLAGS=--defines=src/include/parser/cypher_gram_def.h
+timescaledb	https://github.com/timescale/timescaledb	2.30.2	REGRESS_CHECKS=OFF;TAP_CHECKS=OFF;WARNINGS_AS_ERRORS=OFF;OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4

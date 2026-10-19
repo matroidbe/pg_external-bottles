@@ -1,0 +1,31 @@
+pg_external-bottles
+
+This repository redistributes unmodified, compiled builds of third-party
+PostgreSQL extensions. matroidbe claims no copyright in them. Each one remains
+under its own license, reproduced in licenses/<extension>/ and attached to
+every release:
+
+  vector       pgvector           https://github.com/pgvector/pgvector
+               Copyright (c) 1996-2026 PostgreSQL Global Development Group,
+               (c) 1994 The Regents of the University of California
+               PostgreSQL License
+
+  http         pgsql-http         https://github.com/pramsey/pgsql-http
+               Copyright (C) 2025 Paul Ramsey
+               MIT License
+
+  pg_cron      pg_cron            https://github.com/citusdata/pg_cron
+               Copyright (c) 2015 Citus Data
+               PostgreSQL License
+
+  age          Apache AGE         https://github.com/apache/age
+               Copyright 2023 The Apache Software Foundation
+               Apache License 2.0 (its NOTICE: licenses/age/NOTICE)
+
+  timescaledb  TimescaleDB        https://github.com/timescale/timescaledb
+               Copyright (c) Timescale, Inc.
+               Apache License 2.0 (core) and the Timescale License (tsl/),
+               see licenses/timescaledb/ (its NOTICE: licenses/timescaledb/NOTICE)
+
+The build scripts and manifests in this repository (scripts/, manifests/,
+bottles.tsv) are the only original work here.
