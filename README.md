@@ -18,10 +18,18 @@ here.
 | `http` 1.7 | [pramsey/pgsql-http](https://github.com/pramsey/pgsql-http) | tag `v1.7.2` | Paul Ramsey | [MIT](licenses/http/LICENSE) |
 | `pg_cron` 1.6 | [citusdata/pg_cron](https://github.com/citusdata/pg_cron) | tag `v1.6.8` | Citus Data | [PostgreSQL License](licenses/pg_cron/LICENSE) |
 | `age` 1.8.0 | [apache/age](https://github.com/apache/age) | tag `PG18/v1.8.0-rc0` | The Apache Software Foundation | [Apache-2.0](licenses/age/LICENSE), [NOTICE](licenses/age/NOTICE) |
+| `postgis` 3.6.4 | [postgis.net](https://postgis.net) ([postgis/postgis](https://github.com/postgis/postgis)) | release tarball `postgis-3.6.4.tar.gz` (sha256 pinned) | The PostGIS Project Steering Committee and contributors | [GPL-2.0-or-later](licenses/postgis/COPYING), [component licenses](licenses/postgis/LICENSE) |
 | `timescaledb` 2.30.2 | [timescale/timescaledb](https://github.com/timescale/timescaledb) | tag `2.30.2` | Timescale, Inc. | [Apache-2.0](licenses/timescaledb/LICENSE-APACHE) and the [Timescale License](licenses/timescaledb/LICENSE-TIMESCALE), [NOTICE](licenses/timescaledb/NOTICE) |
 
 Every release attaches these license and NOTICE files beside the bottles, as
 `<extension>-LICENSE…` / `<extension>-NOTICE`. See also [NOTICE](NOTICE).
+
+**PostGIS** is GPL-2.0-or-later. Every release carrying its bottle also
+attaches the exact source tarball it was built from (`postgis-3.6.4.tar.gz`,
+also listed in SHA256SUMS), as the GPL asks of a binary distribution. It links
+Homebrew's GEOS (LGPL), PROJ, json-c and protobuf-c (MIT/BSD) dynamically; the
+bottle records them, and `pgx install` refuses until they are installed
+(`brew install geos proj json-c protobuf-c`, or `pgx install --install-deps`).
 
 **TimescaleDB** is built in full, including the `tsl/` features (compression,
 continuous aggregates) that eidos's `timeseries` uses. Those are under the
@@ -34,8 +42,8 @@ TSL part; everything else is Apache-2.0.
 ## Install
 
 ```bash
-REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.2.0
-for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2; do
+REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.3.0
+for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2 postgis-3.6.4; do
   pgx install --configure --bottle "$REL/$b-pg18-darwin-arm64.tar.gz"
 done
 ```
@@ -59,13 +67,15 @@ upstream tag (pgsql-http v1.7.2 installs extension `http` 1.7).
 
 ## Build
 
-Needs pgx >= v0.2.0 (`--build-var`, the CMake builder), plus `brew install bison
-cmake openssl` for AGE and TimescaleDB.
+Needs pgx >= v0.3.0 (`--build-var`, the CMake and autotools builders, recorded
+library requirements), plus `brew install bison cmake openssl` for AGE and
+TimescaleDB and `brew install geos proj gdal json-c protobuf-c` for PostGIS.
 
 ```bash
 PG_CONFIG=/opt/homebrew/opt/postgresql@18/bin/pg_config scripts/build.sh dist
 ```
 
-`bottles.tsv` pins each upstream tag and the build variables it needs;
+`bottles.tsv` pins each upstream git tag (or a release tarball's sha256) and the
+build variables it needs;
 `manifests/<name>.pgbrew.toml` is copied into the source before bottling. Bump the
 release when a pin changes, and never replace an asset of a published release.

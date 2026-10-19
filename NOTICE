@@ -27,5 +27,12 @@ every release:
                Apache License 2.0 (core) and the Timescale License (tsl/),
                see licenses/timescaledb/ (its NOTICE: licenses/timescaledb/NOTICE)
 
+  postgis      PostGIS            https://postgis.net (https://github.com/postgis/postgis)
+               Copyright the PostGIS Project Steering Committee and contributors
+               GNU General Public License v2 or later (licenses/postgis/COPYING,
+               licenses/postgis/LICENSE for its bundled components). Each
+               release that carries the bottle also carries the exact source
+               tarball it was built from (postgis-<version>.tar.gz).
+
 The build scripts and manifests in this repository (scripts/, manifests/,
 bottles.tsv) are the only original work here.
