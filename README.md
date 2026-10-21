@@ -43,7 +43,7 @@ TSL part; everything else is Apache-2.0.
 ## Install
 
 ```bash
-REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.5.0
+REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.4.0
 TARGET=darwin-arm64   # or linux-amd64
 for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2 postgis-3.6.4 plpython3u-1.0; do
   pgx install --configure --bottle "$REL/$b-pg18-$TARGET.tar.gz"
@@ -77,7 +77,7 @@ source. `vector`, `http`, `age` and `timescaledb` link only system libraries
 `gettext` and `postgresql@18`'s `libpq` by absolute path, so it needs
 `brew install postgresql@18` present even when another PostgreSQL runs it.
 
-linux-amd64 bottles (since v0.5.0) are for **Linuxbrew**: they are built in
+linux-amd64 bottles (added to v0.4.0 on 2026-10-21) are for **Linuxbrew**: they are built in
 Homebrew's own container (`ghcr.io/homebrew/brew:main`, glibc 2.39) against
 the tap's `eidos-postgresql@18` under `/home/linuxbrew/.linuxbrew`, and run in
 that PostgreSQL, not a distribution's. Linux bottles name sonames, not paths,
