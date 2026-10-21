@@ -1,8 +1,11 @@
 # name	upstream (git repo, or a release .tar.gz)	tag (git), or the sha256 of the .tar.gz	build variables (--build-var KEY=VALUE or --option, separated by ;)	subdir of the upstream tree that is the project (optional)
-vector	https://github.com/pgvector/pgvector	v0.8.7
-http	https://github.com/pramsey/pgsql-http	v1.7.2
-pg_cron	https://github.com/citusdata/pg_cron	v1.6.8	PG_LDFLAGS=-L/opt/homebrew/opt/eidos-gettext@1.0/lib -lintl
-age	https://github.com/apache/age	PG18/v1.8.0-rc0	BISON=/opt/homebrew/opt/bison/bin/bison;BISONFLAGS=--defines=src/include/parser/cypher_gram_def.h
-timescaledb	https://github.com/timescale/timescaledb	2.30.2	REGRESS_CHECKS=OFF;TAP_CHECKS=OFF;WARNINGS_AS_ERRORS=OFF;OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@4
-postgis	https://download.osgeo.org/postgis/source/postgis-3.6.4.tar.gz	ed8dc6679f1e06f7b113592b04cde2a7e00f1b1e681294c8ca2204058990cec6	--with-geosconfig=/opt/homebrew/opt/eidos-geos@3.15/bin/geos-config;--with-projdir=/opt/homebrew/opt/eidos-proj@9.9;--with-jsondir=/opt/homebrew/opt/eidos-json-c@0.19;--with-protobufdir=/opt/homebrew/opt/eidos-protobuf-c@1.5;--without-raster;--without-sfcgal
-plpython3u	https://ftp.postgresql.org/pub/source/v18.6/postgresql-18.6.tar.bz2	555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f	PYTHON=/opt/homebrew/opt/eidos-python@3.11/bin/python3.11	src/pl/plpython
+# In build variables, @BREW@ is the Homebrew prefix (/opt/homebrew, or
+# /home/linuxbrew/.linuxbrew on Linux), and a darwin: or linux: prefix keeps
+# a variable to that platform.
+vector	https://github.com/pgvector/pgvector	v0.8.7	OPTFLAGS=
+http	https://github.com/pramsey/pgsql-http	v1.7.2	linux:PG_CPPFLAGS=-I@BREW@/opt/curl/include;linux:SHLIB_LINK=-L@BREW@/opt/curl/lib -lcurl;linux:PG_LDFLAGS=-Wl,-rpath,@BREW@/opt/curl/lib
+pg_cron	https://github.com/citusdata/pg_cron	v1.6.8	darwin:PG_LDFLAGS=-L@BREW@/opt/eidos-gettext@1.0/lib -lintl
+age	https://github.com/apache/age	PG18/v1.8.0-rc0	BISON=@BREW@/opt/bison/bin/bison;BISONFLAGS=--defines=src/include/parser/cypher_gram_def.h
+timescaledb	https://github.com/timescale/timescaledb	2.30.2	REGRESS_CHECKS=OFF;TAP_CHECKS=OFF;WARNINGS_AS_ERRORS=OFF;OPENSSL_ROOT_DIR=@BREW@/opt/openssl@4
+postgis	https://download.osgeo.org/postgis/source/postgis-3.6.4.tar.gz	ed8dc6679f1e06f7b113592b04cde2a7e00f1b1e681294c8ca2204058990cec6	--with-geosconfig=@BREW@/opt/eidos-geos@3.15/bin/geos-config;--with-projdir=@BREW@/opt/eidos-proj@9.9;--with-jsondir=@BREW@/opt/eidos-json-c@0.19;--with-protobufdir=@BREW@/opt/eidos-protobuf-c@1.5;PROTOCC=@BREW@/opt/eidos-protobuf-c@1.5/bin/protoc-c;--without-raster;--without-sfcgal;linux:LDFLAGS=-Wl,-rpath,@BREW@/opt/eidos-geos@3.15/lib -Wl,-rpath,@BREW@/opt/eidos-proj@9.9/lib -Wl,-rpath,@BREW@/opt/eidos-json-c@0.19/lib -Wl,-rpath,@BREW@/opt/eidos-protobuf-c@1.5/lib -Wl,-rpath,@BREW@/opt/libxml2/lib
+plpython3u	https://ftp.postgresql.org/pub/source/v18.6/postgresql-18.6.tar.bz2	555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f	PYTHON=@BREW@/opt/eidos-python@3.11/bin/python3.11;linux:PG_LDFLAGS=-Wl,-rpath,@BREW@/opt/eidos-python@3.11/lib	src/pl/plpython

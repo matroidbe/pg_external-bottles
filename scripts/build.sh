@@ -17,6 +17,8 @@ shift
 mkdir -p "$OUT"; OUT="$(cd "$OUT" && pwd)"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export PG_CONFIG="${PG_CONFIG:-$(command -v pg_config)}"
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+BREW=$(brew --prefix)
 # Without this, macOS stamps the dylibs with this host's macOS version and they
 # refuse to load on any older one.
 [[ "$(uname -s)" == Darwin ]] && export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-14.0}"
@@ -51,9 +53,17 @@ grep -v '^#' "$ROOT/bottles.tsv" | while IFS=$'\t' read -r name url tag vars sub
     [[ -f "$ROOT/manifests/$name.pgbrew.toml" ]] && cp "$ROOT/manifests/$name.pgbrew.toml" "$project/pgbrew.toml"
     # Each variable reaches the build system as a make command-line variable
     # (PGXS) or a -D cache entry (CMake), which overrides the build files.
+    # @BREW@ is the Homebrew prefix; a darwin: or linux: variable is this
+    # platform's only.
     args=()
     IFS=';' read -ra kv <<< "$vars"
-    for v in "${kv[@]}"; do [[ -n "$v" ]] && args+=(--build-var "$v"); done
+    for v in "${kv[@]}"; do
+        case "$v" in
+            "$OS":*) v="${v#"$OS":}" ;;
+            darwin:*|linux:*) continue ;;
+        esac
+        [[ -n "$v" ]] && args+=(--build-var "${v//@BREW@/$BREW}")
+    done
     pgx bottle "$project" -o "$OUT" ${args[@]+"${args[@]}"} </dev/null
 done
 # Each upstream's license (and NOTICE, which Apache-2.0 requires passing on)

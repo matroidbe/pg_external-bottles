@@ -43,9 +43,10 @@ TSL part; everything else is Apache-2.0.
 ## Install
 
 ```bash
-REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.4.0
+REL=https://github.com/matroidbe/pg_external-bottles/releases/download/v0.5.0
+TARGET=darwin-arm64   # or linux-amd64
 for b in vector-0.8.7 http-1.7 pg_cron-1.6 age-1.8.0 timescaledb-2.30.2 postgis-3.6.4 plpython3u-1.0; do
-  pgx install --configure --bottle "$REL/$b-pg18-darwin-arm64.tar.gz"
+  pgx install --configure --bottle "$REL/$b-pg18-$TARGET.tar.gz"
 done
 ```
 
@@ -76,20 +77,36 @@ source. `vector`, `http`, `age` and `timescaledb` link only system libraries
 `gettext` and `postgresql@18`'s `libpq` by absolute path, so it needs
 `brew install postgresql@18` present even when another PostgreSQL runs it.
 
+linux-amd64 bottles (since v0.5.0) are for **Linuxbrew**: they are built in
+Homebrew's own container (`ghcr.io/homebrew/brew:main`, glibc 2.39) against
+the tap's `eidos-postgresql@18` under `/home/linuxbrew/.linuxbrew`, and run in
+that PostgreSQL, not a distribution's. Linux bottles name sonames, not paths,
+and the tap's kegs are keg-only, so a bottle that links one carries an rpath
+to its `opt/<keg>/lib`: `http` (Homebrew's curl), `postgis` (the GEOS, PROJ,
+json-c, protobuf-c and libxml2 kegs) and `plpython3u` (`eidos-python@3.11`).
+`pg_cron` finds `libpq` in the server's own library directory. pgx records no
+library requirements on Linux, so install the tap's `Brewfile` first.
+`vector` is built with `OPTFLAGS=` on every platform: pgvector otherwise
+compiles x86 code with `-march=native`, which would tie the bottle to the
+build machine's CPU.
+
 A bottle's version is the extension version from its control file, not the
 upstream tag (pgsql-http v1.7.2 installs extension `http` 1.7).
 
 ## Build
 
 Needs pgx >= v0.4.0 (`--build-var`, the CMake and autotools builders, recorded
-library requirements), plus `brew install bison cmake openssl` for AGE and
-TimescaleDB and `brew install geos proj gdal json-c protobuf-c` for PostGIS.
+library requirements), the tap's kegs (`brew bundle --file="$(brew --repository
+matroidbe/eidos)/Brewfile"`), and `brew install bison cmake flex pkgconf`
+(flex at the path `eidos-postgresql@18`'s PGXS recorded, for AGE). On Linux,
+build in `ghcr.io/homebrew/brew:main`, as its `linuxbrew` user.
 
 ```bash
-PG_CONFIG=/opt/homebrew/opt/postgresql@18/bin/pg_config scripts/build.sh dist
+PG_CONFIG="$(brew --prefix)/opt/eidos-postgresql@18/bin/pg_config" scripts/build.sh dist
 ```
 
 `bottles.tsv` pins each upstream git tag (or a release tarball's sha256) and the
-build variables it needs;
+build variables it needs, with `@BREW@` for the Homebrew prefix and a `darwin:`
+or `linux:` prefix on a variable only one platform takes;
 `manifests/<name>.pgbrew.toml` is copied into the source before bottling. Bump the
 release when a pin changes, and never replace an asset of a published release.
